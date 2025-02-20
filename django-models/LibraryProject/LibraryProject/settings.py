@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent  # ✅ Use Pathlib correctly
+BASE_DIR = Path(__file__).resolve().parent.parent  
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -44,7 +44,7 @@ ROOT_URLCONF = 'LibraryProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'relationship_app/templates'],  # ✅ Fixed template directory
+        'DIRS': [os.path.join(BASE_DIR, 'relationship_app/templates')],  # Ensure template directory is correct
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
