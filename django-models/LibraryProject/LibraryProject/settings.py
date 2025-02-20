@@ -44,7 +44,7 @@ ROOT_URLCONF = 'LibraryProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'relationship_app/templates')],  # Ensure template directory is correct
+        'DIRS': [os.path.join(BASE_DIR, 'relationship_app/templates')],  # Ensure correct path
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,7 +66,7 @@ WSGI_APPLICATION = 'LibraryProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',  # ✅ Now BASE_DIR is a Path object
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
