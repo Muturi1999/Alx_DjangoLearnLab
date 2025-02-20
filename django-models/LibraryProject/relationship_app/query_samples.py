@@ -27,9 +27,10 @@ def books_in_library(library_name):
 # Retrieve the librarian for a library
 def librarian_of_library(library_name):
     try:
-        library = Library.objects.get(name=library_name)  # Use `.get()`
-        return library.librarian.name if hasattr(library, 'librarian') else None
-    except Library.DoesNotExist:
+        library = Library.objects.get(name=library_name)  # Ensure library exists
+        librarian = Librarian.objects.get(library=library)  # Use `.get()` on Librarian model
+        return librarian.name
+    except (Library.DoesNotExist, Librarian.DoesNotExist):
         return None
 
 # Sample Usage
