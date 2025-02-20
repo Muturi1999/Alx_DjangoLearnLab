@@ -1,6 +1,6 @@
 # relationship_app/query_samples.py
 
-# Import necessary modules
+# Import necessary models
 from relationship_app.models import Author, Book, Library, Librarian
 
 def query_books_by_author(author_name):
@@ -8,8 +8,8 @@ def query_books_by_author(author_name):
     try:
         # Find author by name
         author = Author.objects.get(name=author_name)
-        # Get all books by this author
-        books = author.books.all()
+        # Get all books by this author using filter()
+        books = Book.objects.filter(author=author)
         return books
     except Author.DoesNotExist:
         return []
@@ -31,7 +31,7 @@ def get_librarian_for_library(library_name):
         # Find library by name
         library = Library.objects.get(name=library_name)
         # Get the librarian for this library
-        librarian = library.librarian
+        librarian = Librarian.objects.get(library=library)
         return librarian
     except Library.DoesNotExist:
         return None
@@ -47,9 +47,9 @@ def create_sample_data():
     author2 = Author.objects.create(name="George Orwell")
     
     # Create books
-    book1 = Book.objects.create(title="Harry Potter", author=author1, publication_year=1997)
-    book2 = Book.objects.create(title="1984", author=author2, publication_year=1949)
-    book3 = Book.objects.create(title="Animal Farm", author=author2, publication_year=1945)
+    book1 = Book.objects.create(title="Harry Potter", author=author1)
+    book2 = Book.objects.create(title="1984", author=author2)
+    book3 = Book.objects.create(title="Animal Farm", author=author2)
     
     # Create libraries
     library1 = Library.objects.create(name="Central Library")
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     rowling_books = query_books_by_author("J.K. Rowling")
     print("Books by J.K. Rowling:")
     for book in rowling_books:
-        print(f"- {book.title} ({book.publication_year})")
+        print(f"- {book.title}")
     
     # List books in library
     central_books = list_books_in_library("Central Library")
