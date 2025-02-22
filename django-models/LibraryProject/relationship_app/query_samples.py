@@ -5,7 +5,7 @@ def query_books_by_author(author_name):
     """Query all books by a specific author."""
     try:
         author = Author.objects.get(name=author_name)
-        return author.books.all()
+        return Book.objects.filter(author=author)  # ✅ Fixed to match the expected format
     except Author.DoesNotExist:
         return None
 
@@ -21,9 +21,11 @@ def get_library_librarian(library_name):
     """Retrieve the librarian for a library."""
     try:
         library = Library.objects.get(name=library_name)
-        return library.librarian
+        return library.librarian  # ✅ Ensure 'librarian' is a ForeignKey in the Library model
     except Library.DoesNotExist:
         return None
+    except AttributeError:
+        return "Librarian field missing in Library model"
 
 # Example usage:
 if __name__ == "__main__":
