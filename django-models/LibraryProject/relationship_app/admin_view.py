@@ -1,15 +1,9 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from django.http import HttpResponseForbidden
-from relationship_app.models import UserProfile  # Ensure this import is correct
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import UserProfile
 
 @login_required
+@user_passes_test(lambda u: u.userprofile.role == "Admin")
 def admin_view(request):
-    """Admin-only view"""
-    try:
-        if request.user.userprofile.role != "Admin":  # Ensure 'role' is the correct field name
-            return HttpResponseForbidden("You do not have permission to access this page.")
-    except UserProfile.DoesNotExist:
-        return HttpResponseForbidden("User profile not found.")
-
     return render(request, "relationship_app/admin_dashboard.html")
