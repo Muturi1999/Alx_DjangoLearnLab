@@ -143,3 +143,88 @@ class LibraryDetailView(LoginRequiredMixin, DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.detail import DetailView
+from django.urls import reverse_lazy
+# from django.contrib import messages
+from .models import Library, Book
+
+def user_login(request):
+    """Handles user login."""
+    if request.user.is_authenticated:
+        return redirect('relationship_app:list_books')
+
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Welcome back, {username}!')
+                return redirect('relationship_app:list_books')
+            else:
+                messages.error(request, 'Invalid username or password.')
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, 'relationship_app/login.html', {
+        'form': form,
+        'title': 'Login'
+    })
+
+def register(request):
+    """Handles user registration."""
+    if request.user.is_authenticated:
+        return redirect('relationship_app:list_books')
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Registration successful! Welcome to the library.')
+            return redirect('relationship_app:list_books')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserCreationForm()
+    
+    return render(request, 'relationship_app/register.html', {
+        'form': form,
+        'title': 'Register'
+    })
+
+@login_required
+def user_logout(request):
+    """Handles user logout."""
+    logout(request)
+    messages.info(request, 'You have been logged out.')
+    return redirect('relationship_app:login')
+
+@login_required
+def list_books(request):
+    """Lists all books with their authors."""
+    books = Book.objects.all().select_related('author')
+    return render(request, 'relationship_app/list_books.html', {
+        'books': books,
+        'title': 'Book List'
+    })
+
+class LibraryDetailView(LoginRequiredMixin, DetailView):
+    """Displays details for a specific library."""
+    model = Library
+    template_name = 'relationship_app/library_detail.html'
+    context_object_name = 'library'
+    login_url = reverse_lazy('relationship_app:login')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['books'] = self.object.books.all().select_related('author')
+        context['title'] = f'Library: {self.object.name}'
+        return context
