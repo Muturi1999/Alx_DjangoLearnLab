@@ -40,23 +40,25 @@
 # Roll back to this for it was working for task two
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .admin_view import admin_dashboard
-from .librarian_view import librarian_dashboard
-from .member_view import member_dashboard
 from .views import list_books, LibraryDetailView, register
+
+# Ensure these modules exist and are correctly placed
+from relationship_app.admin_view import admin_view
+from relationship_app.librarian_view import librarian_view
+from relationship_app.member_view import member_view
 
 app_name = 'relationship_app'
 
 urlpatterns = [
     # Authentication URLs using Django's built-in views
     path("login/", auth_views.LoginView.as_view(template_name="relationship_app/login.html"), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(template_name="relationship_app/logout.html"), name="logout"),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("register/", register, name="register"),
 
     # Role-Based Views
-    path("admin_dashboard/", admin_dashboard, name="admin_dashboard"),
-    path("librarian_dashboard/", librarian_dashboard, name="librarian_dashboard"),
-    path("member_dashboard/", member_dashboard, name="member_dashboard"),
+    path("admin/dashboard/", admin_view, name="admin_dashboard"),
+    path("librarian/dashboard/", librarian_view, name="librarian_dashboard"),
+    path("member/dashboard/", member_view, name="member_dashboard"),
 
     # Other URLs
     path("books/", list_books, name="list_books"),
