@@ -66,16 +66,22 @@
 #     context_object_name = 'library'
 # roll back to this it was working for task two
 # views.py
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.forms import UserCreationForm
-# from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
 from .models import Library, Book
+
+def is_admin(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+
+def is_librarian(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
+
+def is_member(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
 def user_login(request):
     """Handles user login."""
@@ -102,7 +108,7 @@ def register(request):
         return redirect("relationship_app:list_books")
 
     if request.method == "POST":
-        form = UserCreationForm(request.POST)  # ✅ Using UserCreationForm properly
+        form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -134,3 +140,21 @@ class LibraryDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = self.object.books.all().select_related('author')
         return context
+
+@login_required
+@user_passes_test(is_admin)
+def admin_dashboard(request):
+    """Admin-only dashboard."""
+    return render(request, "relationship_app/admin_dashboard.html")
+
+@login_required
+@user_passes_test(is_librarian)
+def librarian_dashboard(request):
+    """Librarian-only dashboard."""
+    return render(request, "relationship_app/librarian_dashboard.html")
+
+@login_required
+@user_passes_test(is_member)
+def member_dashboard(request):
+    """Member-only dashboard."""
+    return render(request, "relationship_app/member_dashboard.html")
