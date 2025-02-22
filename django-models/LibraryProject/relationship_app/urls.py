@@ -42,7 +42,8 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import list_books, LibraryDetailView, register
-from .admin_view import admin_view
+# from .admin_view import admin_view
+from .admin_view import admin_view  # Ensure this import is correct
 from .librarian_view import librarian_view
 from .member_view import member_view
 
@@ -53,6 +54,7 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("register/", register, name="register"),
 
+    # path("admin/dashboard/", admin_view, name="admin_dashboard"),
     path("admin/dashboard/", admin_view, name="admin_dashboard"),
     path("librarian/dashboard/", librarian_view, name="librarian_dashboard"),
     path("member/dashboard/", member_view, name="member_dashboard"),
