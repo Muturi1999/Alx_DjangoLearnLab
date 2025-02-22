@@ -21,11 +21,11 @@ def get_library_librarian(library_name):
     """Retrieve the librarian for a library."""
     try:
         library = Library.objects.get(name=library_name)
-        return library.librarian  # ✅ Ensure 'librarian' is a ForeignKey in the Library model
+        return Librarian.objects.get(library=library)  # ✅ Fixed query
     except Library.DoesNotExist:
         return None
-    except AttributeError:
-        return "Librarian field missing in Library model"
+    except Librarian.DoesNotExist:
+        return "No librarian assigned to this library"
 
 # Example usage:
 if __name__ == "__main__":
@@ -42,4 +42,4 @@ if __name__ == "__main__":
     # Get librarian
     librarian = get_library_librarian("Central Library")
     if librarian:
-        print("Central Library's librarian:", librarian.name)
+        print("Central Library's librarian:", librarian.name if isinstance(librarian, Librarian) else librarian)

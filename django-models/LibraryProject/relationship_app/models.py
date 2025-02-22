@@ -33,8 +33,16 @@ class Librarian(models.Model):
     library = models.OneToOneField(
         Library,  
         on_delete=models.CASCADE, 
-        related_name='librarian'
+        related_name='librarian'  # Allows reverse querying: `library.librarian`
     )
-    
+
+    @staticmethod
+    def get_librarian_by_library(library_instance):
+        """Retrieve librarian for a given library instance."""
+        try:
+            return Librarian.objects.get(library=library_instance)
+        except Librarian.DoesNotExist:
+            return None
+
     def __str__(self):
-        return f"{self.name} (Librarian at {self.library.name})"  
+        return f"{self.name} (Librarian at {self.library.name})"
