@@ -66,11 +66,13 @@
 #     context_object_name = 'library'
 # roll back to this it was working for task two
 # views.py
+
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.views.generic.detail import DetailView
+from django.contrib.auth.views import LoginView, LogoutView
 from .models import Library, Book
 
 # Role-based access control functions
@@ -83,22 +85,7 @@ def is_librarian(user):
 def is_member(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
-# User authentication views
-def user_login(request):
-    if request.user.is_authenticated:
-        return redirect("relationship_app:list_books")
-
-    if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect("relationship_app:list_books")
-    else:
-        form = AuthenticationForm()
-    
-    return render(request, "relationship_app/login.html", {"form": form})
-
+# Register view (Using built-in Django UserCreationForm)
 def register(request):
     if request.user.is_authenticated:
         return redirect("relationship_app:list_books")
@@ -107,17 +94,12 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user)  # Log the user in after registration
             return redirect("relationship_app:list_books")
     else:
         form = UserCreationForm()
     
     return render(request, "relationship_app/register.html", {"form": form})
-
-@login_required
-def user_logout(request):
-    logout(request)
-    return redirect("relationship_app:login")
 
 # Book listing
 @login_required
