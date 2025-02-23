@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.views.generic.detail import DetailView
 from django.contrib.auth.views import LogoutView
@@ -71,3 +72,18 @@ def librarian_view(request):
 def member_view(request):
     """View for Member users only."""
     return render(request, "relationship_app/member_view.html")
+
+
+# Book Views with permissions
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        published_date = request.POST.get('published_date')
+
+        # Create a new book instance and save it
+        new_book = Book(title=title, author=author, published_date=published_date)
+        new_book.save()
+
+        return redirect('book_list')
