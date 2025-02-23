@@ -42,14 +42,16 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import list_books, LibraryDetailView, register, admin_view, librarian_view, member_view
+from LibraryProject.relationship_app import views
+from django.contrib.auth.views import LogoutView, LoginView
 
 app_name = 'relationship_app'
 
 urlpatterns = [
     # Authentication views using Django's built-in views
-    path("login/", auth_views.LoginView.as_view(template_name="relationship_app/login.html"), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-    path("register/", register, name="register"),
+    path("login/", LoginView.as_view(template_name="relationship_app/login.html"), name="login"),
+    path("logout/", LogoutView.as_view(), template_name="relationship_app/logout.html"),
+    path("register/", views.register, name="register"),
 
     # Role-based dashboard views
     path("admin/dashboard/", admin_view, name="admin_dashboard"),
