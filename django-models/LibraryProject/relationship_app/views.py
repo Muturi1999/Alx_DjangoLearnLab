@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
+from .forms import BookForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.decorators import permission_required
@@ -7,6 +8,7 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.forms import UserCreationForm
 from .models import Library, Book
+# "relationship_app.can_change_book", "relationship_app.can_delete_book
 
 # Role-based access control functions
 def is_admin(user):
@@ -87,3 +89,25 @@ def add_book(request):
         new_book.save()
 
         return redirect('book_list')
+    
+    # "relationship_app.can_change_book", "relationship_app.can_delete_book
+    # View to Edit a Book
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == "POST":
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect('book_list')
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'books/edit_book.html', {'form': form, 'book': book})
+# View to Delete a Book
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == "POST":
+        book.delete()
+        return redirect('book_list')
+    return render(request, 'books/delete_book.html', {'book': book})
