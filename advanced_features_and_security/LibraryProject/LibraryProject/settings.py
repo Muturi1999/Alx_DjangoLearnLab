@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     # 'django.contrib.messages',
     'bookshelf',
     'relationship_app',
-    'myapp',
+    'user',
 
 ]
 
@@ -127,12 +127,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+AUTH_USER_MODEL = "user.CustomUser"
+
+
 STATIC_URL = 'static/'
-
-AUTH_USER_MODEL = 'myapp.CustomUser'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

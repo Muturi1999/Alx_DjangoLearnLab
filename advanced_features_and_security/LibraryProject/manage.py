@@ -3,8 +3,6 @@
 import os
 import sys
 
-# Ensure Python can find the project directory
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def main():
     """Run administrative tasks."""

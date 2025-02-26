@@ -1,137 +1,5 @@
-# from django.db import models
-# # from django.db import models
-# from django.contrib.auth.models import User
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
-
-
-# class Author(models.Model):
-#     name = models.CharField(max_length=100, unique=True)  # Ensures author names are unique
-    
-#     def __str__(self):
-#         return self.name
-
-# class Book(models.Model):
-#     title = models.CharField(max_length=200, unique=True)  # Ensures book titles are unique
-#     author = models.ForeignKey(
-#         Author, 
-#         on_delete=models.CASCADE, 
-#         related_name='books'
-#     )
-    
-#     def __str__(self):
-#         return f"{self.title} by {self.author.name}"  # Improved string representation
-
-# class Library(models.Model):
-#     name = models.CharField(max_length=200, unique=True)  # Library names should be unique
-#     books = models.ManyToManyField(
-#         Book, 
-#         related_name='libraries', 
-#         blank=True  # Allows a library to have no books initially
-#     )
-    
-#     def __str__(self):
-#         return self.name
-
-# class Librarian(models.Model):
-#     name = models.CharField(max_length=100)
-#     library = models.OneToOneField(
-#         Library,  
-#         on_delete=models.CASCADE, 
-#         related_name='librarian'  # Allows reverse querying: `library.librarian`
-#     )
-
-#     @staticmethod
-#     def get_librarian_by_library(library_instance):
-#         """Retrieve librarian for a given library instance."""
-#         try:
-#             return Librarian.objects.get(library=library_instance)
-#         except Librarian.DoesNotExist:
-#             return None
-
-#     def __str__(self):
-#         return f"{self.name} (Librarian at {self.library.name})"
-    
-
-# class UserProfile(models.Model):
-#     ROLE_CHOICES = [
-#         ('Admin', 'Admin'),
-#         ('Librarian', 'Librarian'),
-#         ('Member', 'Member'),
-#     ]
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='Member')
-
-#     def __str__(self):
-#         return f"{self.user.username} - {self.role}"
-
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         UserProfile.objects.create(user=instance)
-
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.userprofile.save()
-
-# from django.db import models
-# from django.contrib.auth.models import User
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
-
-# class Author(models.Model):
-#     name = models.CharField(max_length=100, unique=True)
-
-#     def __str__(self):
-#         return self.name
-
-# class Book(models.Model):
-#     title = models.CharField(max_length=200, unique=True)
-#     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
-
-#     def __str__(self):
-#         return f"{self.title} by {self.author.name}"
-#     class Meta:
-#         permissions = [('can_add_book', 'can add a book'), ('can_change_book', 'can update a book'), ('can_delete_book', 'can delete a book')]
-
-# class Library(models.Model):
-#     name = models.CharField(max_length=200, unique=True)
-#     books = models.ManyToManyField(Book, related_name='libraries', blank=True)
-
-#     def __str__(self):
-#         return self.name
-
-# class Librarian(models.Model):
-#     name = models.CharField(max_length=100)
-#     library = models.OneToOneField(Library, on_delete=models.CASCADE, related_name='librarian')
-
-#     def __str__(self):
-#         return f"{self.name} (Librarian at {self.library.name})"
-
-# class UserProfile(models.Model):
-#     ROLE_CHOICES = [
-#         ('Admin', 'Admin'),
-#         ('Librarian', 'Librarian'),
-#         ('Member', 'Member'),
-#     ]
-#     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="userprofile")
-#     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='Member')
-
-#     def __str__(self):
-#         return f"{self.user.username} - {self.role}"
-
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created and not hasattr(instance, 'userprofile'):
-#         UserProfile.objects.create(user=instance)
-
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     if hasattr(instance, 'userprofile'):
-#         instance.userprofile.save()
-
 from django.db import models
-from django.conf import settings  # ✅ Import settings to use the custom user model
+from django.conf import settings  # Import settings to reference AUTH_USER_MODEL
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -147,7 +15,7 @@ class Book(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.author.name}"
-    
+
     class Meta:
         permissions = [
             ('can_add_book', 'Can add a book'),
@@ -175,18 +43,18 @@ class UserProfile(models.Model):
         ('Librarian', 'Librarian'),
         ('Member', 'Member'),
     ]
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="userprofile")  # ✅ Corrected user reference
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")  # Use AUTH_USER_MODEL
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='Member')
 
     def __str__(self):
-        return f"{self.user.email} - {self.role}"  # ✅ Use email instead of username
+        return f"{self.user.email} - {self.role}"  # Use email instead of username
 
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)  # ✅ Update signal sender
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)  # Ensure correct signal sender
 def create_user_profile(sender, instance, created, **kwargs):
-    if created and not hasattr(instance, 'userprofile'):
+    if created and not hasattr(instance, 'profile'):
         UserProfile.objects.create(user=instance)
 
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)  # ✅ Update signal sender
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def save_user_profile(sender, instance, **kwargs):
-    if hasattr(instance, 'userprofile'):
-        instance.userprofile.save()
+    if hasattr(instance, 'profile'):
+        instance.profile.save()
