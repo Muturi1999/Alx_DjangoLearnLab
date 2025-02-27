@@ -129,6 +129,8 @@ USE_TZ = True
 
 # AUTH_USER_MODEL = "user.CustomUser"
 AUTH_USER_MODEL = "user.CustomUser"
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
 
 
 
