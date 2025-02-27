@@ -230,6 +230,60 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
+# settings.py
+
+# ... (existing imports and settings)
+
+# Security Settings for HTTPS
+# Redirect all non-HTTPS requests to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# HTTP Strict Transport Security
+# Instructs browsers to only access the site via HTTPS for one year (in seconds)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+
+# Include all subdomains in the HSTS policy
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+# Allow browsers to preload HSTS configuration
+SECURE_HSTS_PRELOAD = True
+
+# Cookie Settings
+# Ensure session cookies are only sent over HTTPS
+SESSION_COOKIE_SECURE = True
+
+# Ensure CSRF cookies are only sent over HTTPS
+CSRF_COOKIE_SECURE = True
+# Secure Proxy SSL Header (Required when using a reverse proxy)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+# Additional Security Headers
+# Prevent site from being framed to protect against clickjacking
+X_FRAME_OPTIONS = 'DENY'
+
+# Prevent browsers from MIME-sniffing a response away from the declared content-type
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enable browser's XSS filtering to help prevent cross-site scripting attacks
+SECURE_BROWSER_XSS_FILTER = True
+
+# Secure Cookies
+SESSION_COOKIE_SECURE = True  # Ensures session cookies are sent only over HTTPS
+CSRF_COOKIE_SECURE = True  # Ensures CSRF cookies are sent only over HTTPS
+# Enforce HTTPS
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
+SECURE_HSTS_SECONDS = 31536000  # Enable HSTS for one year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
+SECURE_HSTS_PRELOAD = True  # Allow preloading of HSTS policy
+
+
+# Secure Headers
+X_FRAME_OPTIONS = "DENY"  # Prevents clickjacking by blocking iframes
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents MIME-type sniffing
+SECURE_BROWSER_XSS_FILTER = True  # Enables browser's built-in XSS protection
+
+# ... (rest of your settings)
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
