@@ -105,6 +105,7 @@
 #     template_name = 'bookshelf/book_confirm_delete.html'
 #     success_url = reverse_lazy('book_list')
 
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.urls import reverse_lazy
@@ -112,7 +113,11 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from .models import Book, CustomUser
-from .forms import BookForm, ExampleForm  # Import ExampleForm
+# Change from this:
+# from .forms import BookForm, ExampleForm  # Import ExampleForm
+# To this:
+from .forms import BookForm
+from .forms import ExampleForm  # Separate import statement for ExampleForm
 
 # Function-based views with permission decorators
 
