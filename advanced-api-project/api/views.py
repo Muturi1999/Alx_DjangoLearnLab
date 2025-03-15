@@ -29,9 +29,10 @@
 #     queryset = Book.objects.all()
 #     serializer_class = BookSerializer
 #     permission_classes = [permissions.IsAuthenticated]
+
 from datetime import datetime
 from rest_framework import generics, permissions, serializers
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated  # Explicitly importing both
 from .models import Book
 from .serializers import BookSerializer
 
@@ -61,7 +62,7 @@ class BookCreateView(generics.CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Explicit usage of IsAuthenticated
 
     def perform_create(self, serializer):
         """Ensure publication_year is not in the future before saving."""
@@ -77,7 +78,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Explicit usage of IsAuthenticated
 
     def perform_update(self, serializer):
         """Ensure publication_year is not updated to a future date."""
@@ -92,4 +93,4 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Explicit usage of IsAuthenticated
