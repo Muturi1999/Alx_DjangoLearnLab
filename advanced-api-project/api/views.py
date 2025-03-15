@@ -32,31 +32,31 @@
 
 from datetime import datetime
 from rest_framework import generics, permissions, serializers, filters
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated  # Explicitly importing 
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated  # Explicitly importing
+from django_filters import rest_framework as django_filters  # ✅ Correct import
 
 from .models import Book
 from .serializers import BookSerializer
 
 class BookListView(generics.ListAPIView):
     """
-    Handles listing all books.
+    Handles listing all books with filtering, searching, and ordering.
     Available to both authenticated and unauthenticated users.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-        # Adding filtering, searching, and ordering capabilities
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    # ✅ Adding filtering, searching, and ordering capabilities
+    filter_backends = [django_filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
 
-    # Defining fields can be used for filtering
+    # ✅ Fields available for filtering
     filterset_fields = ['title', 'author', 'publication_year']
 
-    # fields that can be searched via text queries
+    # ✅ Fields that can be searched via text queries
     search_fields = ['title', 'author__name']
 
-    # fields that can be used for ordering
+    # ✅ Fields that can be used for ordering
     ordering_fields = ['title', 'publication_year']
 
 class BookDetailView(generics.RetrieveAPIView):
@@ -76,7 +76,7 @@ class BookCreateView(generics.CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Explicit usage of IsAuthenticated
+    permission_classes = [IsAuthenticated]  # ✅ Explicit usage of IsAuthenticated
 
     def perform_create(self, serializer):
         """Ensure publication_year is not in the future before saving."""
@@ -92,7 +92,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Explicit usage of IsAuthenticated
+    permission_classes = [IsAuthenticated]  # ✅ Explicit usage of IsAuthenticated
 
     def perform_update(self, serializer):
         """Ensure publication_year is not updated to a future date."""
@@ -107,4 +107,5 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Explicit usage of IsAuthenticated
+    permission_classes = [IsAuthenticated]  
+
