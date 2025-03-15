@@ -19,7 +19,7 @@ class BookAPITestCase(TestCase):
         self.author_b = Author.objects.create(name="Author B")
         self.author_c = Author.objects.create(name="Author C")
 
-        # Create test books (Fix: Use Author instances instead of strings)
+        # Create test books
         self.book1 = Book.objects.create(title="Book One", author=self.author_a, publication_year=2020)
         self.book2 = Book.objects.create(title="Book Two", author=self.author_b, publication_year=2021)
 
@@ -27,9 +27,7 @@ class BookAPITestCase(TestCase):
         self.book_list_url = "/api/books/"
         self.book_detail_url = f"/api/books/{self.book1.id}/"
         self.book_create_url = "/api/books/create/"
-        self.book_update_url = f"/api/books/{self.book1.id}/update/"
-        self.book_delete_url = f"/api/books/{self.book1.id}/delete/"
-
+    
     def test_list_books(self):
         """Test retrieving the list of books."""
         response = self.client.get(self.book_list_url)
@@ -43,8 +41,8 @@ class BookAPITestCase(TestCase):
         self.assertEqual(response.data['title'], self.book1.title)
 
     def test_create_book_authenticated(self):
-        """Test creating a book while authenticated."""
-        self.client.force_authenticate(user=self.user)
+        """Test creating a book while authenticated using login."""
+        self.client.login(username='testuser', password='password123')  # ✅ Added login authentication
         data = {"title": "New Book", "author": self.author_c.id, "publication_year": 2023}
         response = self.client.post(self.book_create_url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -57,18 +55,18 @@ class BookAPITestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_book_authenticated(self):
-        """Test updating a book while authenticated."""
-        self.client.force_authenticate(user=self.user)
+        """Test updating a book while authenticated using login."""
+        self.client.login(username='testuser', password='password123')  # ✅ Added login authentication
         data = {"title": "Updated Book", "author": self.author_a.id, "publication_year": 2025}
-        response = self.client.put(self.book_update_url, data, format="json")
+        response = self.client.patch(self.book_detail_url, data, format="json")  # ✅ Changed to PATCH
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.book1.refresh_from_db()
         self.assertEqual(self.book1.title, "Updated Book")
 
     def test_delete_book_authenticated(self):
-        """Test deleting a book while authenticated."""
-        self.client.force_authenticate(user=self.user)
-        response = self.client.delete(self.book_delete_url)
+        """Test deleting a book while authenticated using login."""
+        self.client.login(username='testuser', password='password123')  # ✅ Added login authentication
+        response = self.client.delete(self.book_detail_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Book.objects.count(), 1)
 
