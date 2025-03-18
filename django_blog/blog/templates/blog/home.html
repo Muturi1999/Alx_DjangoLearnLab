@@ -1,0 +1,17 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Home - Django Blog{% endblock %}
+
+{% block content %}
+    <h1>Welcome to Django Blog</h1>
+    <p>Your go-to place for the latest articles and discussions.</p>
+    
+    <h2>Latest Blog Posts</h2>
+    <ul>
+        <li><a href="#">Post 1</a></li>
+        <li><a href="#">Post 2</a></li>
+        <li><a href="#">Post 3</a></li>
+    </ul>
+    
+    <p><a href="{% url 'register' %}">Register</a> or <a href="{% url 'login' %}">Login</a> to start blogging!</p>
+{% endblock %}
