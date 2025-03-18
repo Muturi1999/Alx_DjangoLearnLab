@@ -5,6 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django import forms
+from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+
+from blog.forms import PostForm
+from .models import Post
 
 # Custom Registration Form (Extends UserCreationForm)
 class RegisterForm(UserCreationForm):
@@ -54,3 +61,48 @@ def profile(request):
 def home(request):
     return render(request, "blog/home.html")
 
+
+
+
+
+# List all blog posts
+class PostListView(ListView):
+    model = Post
+    template_name = "blog/post_list.html"  # Template for listing posts
+    context_object_name = "posts"
+    ordering = ['-created_at']  # Show latest posts first
+
+# Show details of a single post
+class PostDetailView(DetailView):
+    model = Post
+    template_name = "blog/post_detail.html"
+
+# Create a new blog post
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = "blog/post_form.html"
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user  # Set author to logged-in user
+        return super().form_valid(form)
+
+# Update an existing post (Only the author can edit)
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = "blog/post_form.html"
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author  # Only allow the author to edit
+
+# Delete a post (Only the author can delete)
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = "blog/post_confirm_delete.html"
+    success_url = reverse_lazy('post-list')
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author  
