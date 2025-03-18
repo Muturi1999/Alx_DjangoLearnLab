@@ -50,7 +50,9 @@ from django.urls import path
 from .views import (
     register, user_login, user_logout, profile, home,
     PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
-    CommentCreateView, CommentUpdateView, CommentDeleteView, add_comment
+    CommentCreateView, CommentUpdateView, CommentDeleteView, add_comment,
+
+     TaggedPostListView, SearchResultsView
 )
 
 urlpatterns = [
@@ -71,4 +73,9 @@ urlpatterns = [
     path("post/<int:pk>/comments/new/", add_comment, name="add-comment"),
     path("comment/<int:pk>/update/", CommentUpdateView.as_view(), name="comment-update"),
     path("comment/<int:pk>/delete/", CommentDeleteView.as_view(), name="comment-delete"),
+
+    # tags
+    path("tags/<str:tag>/", TaggedPostListView.as_view(), name="tagged-posts"),
+    path("search/", SearchResultsView.as_view(), name="search-results"),
+    
 ]

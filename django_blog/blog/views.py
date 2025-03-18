@@ -10,9 +10,12 @@ from django.urls import reverse_lazy
 from django import forms
 from .models import Post, Comment
 from .forms import CommentForm
+from django.db.models import Q
+
 
 from .models import Post
 from .forms import PostForm
+from taggit.models import Tag
 
 # Custom Registration Form
 class RegisterForm(UserCreationForm):
@@ -158,3 +161,24 @@ def add_comment(request, pk):
     else:
         form = CommentForm()
     return render(request, "blog/comment_form.html", {"form": form})
+
+# List all posts by tag
+class TaggedPostListView(ListView):
+    model = Post
+    template_name = "blog/tagged_posts.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        tag_name = self.kwargs.get("tag")
+        return Post.objects.filter(tags__name__icontains=tag_name)
+
+class SearchResultsView(ListView):
+    model = Post
+    template_name = "blog/search_results.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        query = self.request.GET.get("query")
+        return Post.objects.filter(
+            Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
+        ).distinct()
