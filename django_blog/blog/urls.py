@@ -46,13 +46,46 @@
      
 #      ]
 
+# from django.urls import path
+# from .views import (
+#     register, user_login, user_logout, profile, home,
+#     PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
+#     CommentCreateView, CommentUpdateView, CommentDeleteView, add_comment,
+
+#      TaggedPostListView, SearchResultsView
+# )
+
+# urlpatterns = [
+#     path("", home, name="home"),
+#     path("register/", register, name="register"),
+#     path("login/", user_login, name="login"),
+#     path("logout/", user_logout, name="logout"),
+#     path("profile/", profile, name="profile"),
+
+#     # Blog Post URLs
+#     path("posts/", PostListView.as_view(), name="post-list"),
+#     path("posts/<int:pk>/", PostDetailView.as_view(), name="post-detail"),
+#     path("posts/new/", PostCreateView.as_view(), name="post-create"),
+#     path("posts/<int:pk>/update/", PostUpdateView.as_view(), name="post-update"),
+#     path("posts/<int:pk>/delete/", PostDeleteView.as_view(), name="post-delete"),
+
+#     # Comment URLs (Updated to match expected structure)
+#     path("post/<int:pk>/comments/new/", add_comment, name="add-comment"),
+#     path("comment/<int:pk>/update/", CommentUpdateView.as_view(), name="comment-update"),
+#     path("comment/<int:pk>/delete/", CommentDeleteView.as_view(), name="comment-delete"),
+
+#     # tags
+#     path("tags/<str:tag>/", TaggedPostListView.as_view(), name="tagged-posts"),
+#     path("search/", SearchResultsView.as_view(), name="search-results"),
+    
+# ]
+
 from django.urls import path
 from .views import (
     register, user_login, user_logout, profile, home,
     PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
     CommentCreateView, CommentUpdateView, CommentDeleteView, add_comment,
-
-     TaggedPostListView, SearchResultsView
+    PostByTagListView, SearchResultsView 
 )
 
 urlpatterns = [
@@ -74,8 +107,9 @@ urlpatterns = [
     path("comment/<int:pk>/update/", CommentUpdateView.as_view(), name="comment-update"),
     path("comment/<int:pk>/delete/", CommentDeleteView.as_view(), name="comment-delete"),
 
-    # tags
-    path("tags/<str:tag>/", TaggedPostListView.as_view(), name="tagged-posts"),
+    # Fix the tags URL pattern
+    path("tags/<slug:tag_slug>/", PostByTagListView.as_view(), name="tagged-posts"),
+
+    # Search functionality
     path("search/", SearchResultsView.as_view(), name="search-results"),
-    
 ]
