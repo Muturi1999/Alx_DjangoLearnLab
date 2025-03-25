@@ -5,6 +5,12 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from rest_framework import status, generics
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from .serializers import UserFollowSerializer
+
+User = get_user_model()
 
 from .serializers import (
     UserRegistrationSerializer, 
@@ -76,3 +82,78 @@ class UserProfileView(APIView):
             serializer.errors, 
             status=status.HTTP_400_BAD_REQUEST
         )
+    
+
+
+class FollowUserView(APIView):
+    """
+    View to handle following and unfollowing users
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        """
+        Follow a user
+        """
+        target_user = get_object_or_404(User, pk=user_id)
+        
+        # Prevent following self
+        if target_user == request.user:
+            return Response(
+                {'error': 'You cannot follow yourself'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Add to following
+        request.user.follow(target_user)
+        
+        serializer = UserFollowSerializer(
+            target_user, 
+            context={'request': request}
+        )
+        return Response(serializer.data)
+
+class UnfollowUserView(APIView):
+    """
+    View to unfollow a user
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        """
+        Unfollow a user
+        """
+        target_user = get_object_or_404(User, pk=user_id)
+        
+        # Remove from following
+        request.user.unfollow(target_user)
+        
+        serializer = UserFollowSerializer(
+            target_user, 
+            context={'request': request}
+        )
+        return Response(serializer.data)
+
+class UserFollowersListView(generics.ListAPIView):
+    """
+    View to list a user's followers
+    """
+    serializer_class = UserFollowSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        user = get_object_or_404(User, pk=user_id)
+        return user.followers.all()
+
+class UserFollowingListView(generics.ListAPIView):
+    """
+    View to list users a user is following
+    """
+    serializer_class = UserFollowSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        user = get_object_or_404(User, pk=user_id)
+        return user.following_users.all()
