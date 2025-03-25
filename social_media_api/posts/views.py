@@ -120,7 +120,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     search_fields = ['content']
 
     def get_queryset(self):
-        # Option to filter comments by post
+        
         post_id = self.request.query_params.get('post', None)
         if post_id:
             return Comment.objects.filter(post_id=post_id)
@@ -137,13 +137,13 @@ class UserFeedView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Get users that the current user is following using the CustomUser relationship
-        following_users = self.request.user.following_users.all()
         
-        # Include user's own posts as well (optional, remove if not desired)
+        following_users = self.request.user.following.all()  
+        
+        
         following_users = list(following_users) + [self.request.user]
         
-        # Return posts from followed users, ordered by most recent
+        # Return posts from followed users
         return Post.objects.filter(
             author__in=following_users
         ).order_by('-created_at')
