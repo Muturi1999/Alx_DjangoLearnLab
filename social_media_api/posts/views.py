@@ -49,6 +49,22 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 
+# class UserFeedView(generics.ListAPIView):
+#     """
+#     View to retrieve a user's feed (posts from followed users)
+#     """
+#     serializer_class = PostSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_queryset(self):
+#         # Get users that the current user is following
+#         following_users = self.request.user.following_users.all()
+        
+#         # Return posts from followed users, ordered by most recent
+#         return Post.objects.filter(
+#             author__in=following_users
+#         ).order_by('-created_at')
+    
 class UserFeedView(generics.ListAPIView):
     """
     View to retrieve a user's feed (posts from followed users)

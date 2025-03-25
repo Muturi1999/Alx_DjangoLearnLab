@@ -1,14 +1,17 @@
-from rest_framework import status, generics
+from rest_framework import  generics
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
-from rest_framework import status, generics
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from .serializers import UserFollowSerializer
+
+
+CustomUser = get_user_model()
 
 User = get_user_model()
 
@@ -85,54 +88,106 @@ class UserProfileView(APIView):
     
 
 
-class FollowUserView(APIView):
+
+class FollowUserView(generics.GenericAPIView):
     """
-    View to handle following and unfollowing users
+    View to handle following users
     """
-    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
         """
         Follow a user
         """
-        target_user = get_object_or_404(User, pk=user_id)
+        # Get the user to be followed
+        user_to_follow = get_object_or_404(CustomUser, id=user_id)
         
         # Prevent following self
-        if target_user == request.user:
+        if request.user == user_to_follow:
             return Response(
-                {'error': 'You cannot follow yourself'}, 
+                {"error": "You cannot follow yourself"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         # Add to following
-        request.user.follow(target_user)
+        request.user.following_users.add(user_to_follow)
         
-        serializer = UserFollowSerializer(
-            target_user, 
-            context={'request': request}
-        )
-        return Response(serializer.data)
+        return Response({
+            "message": f"You are now following {user_to_follow.username}",
+            "following": True
+        }, status=status.HTTP_200_OK)
 
-class UnfollowUserView(APIView):
+class UnfollowUserView(generics.GenericAPIView):
     """
-    View to unfollow a user
+    View to handle unfollowing users
     """
-    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
         """
         Unfollow a user
         """
-        target_user = get_object_or_404(User, pk=user_id)
+        # Get the user to be unfollowed
+        user_to_unfollow = get_object_or_404(CustomUser, id=user_id)
         
         # Remove from following
-        request.user.unfollow(target_user)
+        request.user.following_users.remove(user_to_unfollow)
         
-        serializer = UserFollowSerializer(
-            target_user, 
-            context={'request': request}
-        )
-        return Response(serializer.data)
+        return Response({
+            "message": f"You have unfollowed {user_to_unfollow.username}",
+            "following": False
+        }, status=status.HTTP_200_OK)
+    
+# class FollowUserView(APIView):
+#     """
+#     View to handle following and unfollowing users
+#     """
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request, user_id):
+#         """
+#         Follow a user
+#         """
+#         target_user = get_object_or_404(User, pk=user_id)
+        
+#         # Prevent following self
+#         if target_user == request.user:
+#             return Response(
+#                 {'error': 'You cannot follow yourself'}, 
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+        
+#         # Add to following
+#         request.user.follow(target_user)
+        
+#         serializer = UserFollowSerializer(
+#             target_user, 
+#             context={'request': request}
+#         )
+#         return Response(serializer.data)
+
+# class UnfollowUserView(APIView):
+#     """
+#     View to unfollow a user
+#     """
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request, user_id):
+#         """
+#         Unfollow a user
+#         """
+#         target_user = get_object_or_404(User, pk=user_id)
+        
+#         # Remove from following
+#         request.user.unfollow(target_user)
+        
+#         serializer = UserFollowSerializer(
+#             target_user, 
+#             context={'request': request}
+#         )
+#         return Response(serializer.data)
 
 class UserFollowersListView(generics.ListAPIView):
     """
