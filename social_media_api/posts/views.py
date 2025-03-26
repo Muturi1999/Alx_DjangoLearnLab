@@ -80,19 +80,20 @@
 #         return Post.objects.filter(
 #             author__in=following_users
 #         ).order_by('-created_at')
-
 from rest_framework import viewsets, generics, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsAuthorOrReadOnly
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     
-    # Filtering and Search
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -110,7 +111,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     
-    # Filtering
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter
@@ -119,7 +119,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     search_fields = ['content']
 
     def get_queryset(self):
-        # Option to filter comments by post
         post_id = self.request.query_params.get('post', None)
         if post_id:
             return Comment.objects.filter(post_id=post_id)
@@ -136,8 +135,11 @@ class UserFeedView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Explicitly get the current user
+        current_user = self.request.user
+        
         # Get users that the current user is following
-        following_users = self.request.user.following_users.all()
+        following_users = current_user.following_users.all()
         
         # Return posts from followed users, ordered by most recent
         return Post.objects.filter(
