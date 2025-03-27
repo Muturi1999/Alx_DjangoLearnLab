@@ -12,21 +12,23 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email')
 
-class RegisterSerializer(serializers.ModelSerializer):  # Changed from Serializer to ModelSerializer
-    username = serializers.CharField(max_length=150)
-    email = serializers.CharField(max_length=255)
+class RegisterSerializer(serializers.ModelSerializer):  # Inherit from ModelSerializer
+    username = serializers.CharField(max_length=150, required=True)  # Explicit CharField
+    email = serializers.CharField(max_length=255, required=True)  # Explicit CharField
     password = serializers.CharField(
-        max_length=128,
-        write_only=True,
+        max_length=128, 
+        write_only=True, 
+        required=True, 
         style={'input_type': 'password'}
-    )
+    )  # Explicit CharField
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password')
 
     def create(self, validated_data):
-        user = get_user_model().objects.create_user(  # Explicitly using get_user_model()
+        # Ensure explicit use of get_user_model().objects.create_user()
+        user = get_user_model().objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
@@ -37,8 +39,10 @@ class RegisterSerializer(serializers.ModelSerializer):  # Changed from Serialize
         return user
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
+    username = serializers.CharField(max_length=150, required=True)  # Explicit CharField
     password = serializers.CharField(
-        max_length=128,
+        max_length=128, 
+        write_only=True, 
+        required=True, 
         style={'input_type': 'password'}
-    )
+    )  # Explicit CharField
