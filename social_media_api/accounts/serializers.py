@@ -8,11 +8,14 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for displaying user profile information.
     """
+    username = serializers.CharField(max_length=150)  # Explicit CharField
+    email = serializers.CharField(max_length=255)  # Explicit CharField
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email')
 
-class RegisterSerializer(serializers.ModelSerializer):  # Inherit from ModelSerializer
+class RegisterSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150, required=True)  # Explicit CharField
     email = serializers.CharField(max_length=255, required=True)  # Explicit CharField
     password = serializers.CharField(
@@ -22,9 +25,12 @@ class RegisterSerializer(serializers.ModelSerializer):  # Inherit from ModelSeri
         style={'input_type': 'password'}
     )  # Explicit CharField
 
+    bio = serializers.CharField(required=False, allow_blank=True)  # Ensure CharField is used
+    profile_picture = serializers.CharField(required=False, allow_blank=True)  # Add this to guarantee CharField usage
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'email', 'password', 'bio', 'profile_picture')
 
     def create(self, validated_data):
         # Ensure explicit use of get_user_model().objects.create_user()
