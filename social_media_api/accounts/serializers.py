@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework.authtoken.models import Token
 
 User = get_user_model()
@@ -8,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for displaying user profile information.
     """
-    id = serializers.CharField(read_only=True)  # Ensure CharField is explicitly present
+    id = serializers.CharField(read_only=True)
     username = serializers.CharField(max_length=150)
     email = serializers.CharField(max_length=255)
     bio = serializers.CharField(required=False, allow_blank=True)
@@ -23,43 +24,48 @@ class RegisterSerializer(serializers.ModelSerializer):
     """
     Serializer for registering a new user.
     """
-    username = serializers.CharField(max_length=150, required=True)
-    email = serializers.CharField(max_length=255, required=True)
     password = serializers.CharField(
-        max_length=128, 
         write_only=True, 
         required=True, 
-        style={'input_type': 'password'}
+        validators=[validate_password]
     )
-    bio = serializers.CharField(required=False, allow_blank=True)
-    profile_picture = serializers.CharField(required=False, allow_blank=True)
-
-    # **Adding an extra dummy CharField to force recognition**
-    dummy_check = serializers.CharField(default="check")
+    password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'bio', 'profile_picture', 'dummy_check')
+        fields = ['username', 'email', 'password', 'password2', 'bio']
+        extra_kwargs = {
+            'email': {'required': True},
+            'bio': {'required': False}
+        }
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."}
+            )
+        return attrs
 
     def create(self, validated_data):
-        validated_data.pop("dummy_check", None)  # Remove dummy field before saving
+        validated_data.pop('password2')
         user = get_user_model().objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            bio=validated_data.get('bio', '')
         )
+        
+        # Create a token for the user
         Token.objects.create(user=user)
+        
         return user
 
 class LoginSerializer(serializers.Serializer):
     """
     Serializer for user login.
     """
-    username = serializers.CharField(max_length=150, required=True)
+    username = serializers.CharField()
     password = serializers.CharField(
-        max_length=128, 
-        write_only=True, 
-        required=True, 
-        style={'input_type': 'password'}
+        style={'input_type': 'password'},
+        trim_whitespace=False
     )
-    token = serializers.CharField(read_only=True)
