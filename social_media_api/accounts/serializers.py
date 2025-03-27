@@ -8,15 +8,41 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for displaying user profile information.
     """
+    # Explicitly add CharField for demonstration
+    username = serializers.CharField(read_only=True)
+    email = serializers.CharField(read_only=True)
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email')
 
 class RegisterSerializer(serializers.Serializer):
-    # Explicitly define CharField
-    username = serializers.CharField(max_length=150)
-    email = serializers.CharField(max_length=255)
-    password = serializers.CharField(write_only=True)
+    # Explicitly define CharField with detailed parameters
+    username = serializers.CharField(
+        max_length=150, 
+        required=True, 
+        error_messages={
+            'required': 'Username is required',
+            'max_length': 'Username must be at most 150 characters'
+        }
+    )
+    email = serializers.CharField(
+        max_length=255, 
+        required=True, 
+        error_messages={
+            'required': 'Email is required',
+            'max_length': 'Email must be at most 255 characters'
+        }
+    )
+    password = serializers.CharField(
+        write_only=True, 
+        required=True, 
+        min_length=8,
+        error_messages={
+            'required': 'Password is required',
+            'min_length': 'Password must be at least 8 characters'
+        }
+    )
 
     def create(self, validated_data):
         # Use get_user_model().objects.create_user explicitly
