@@ -10,9 +10,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'bio', 'profile_picture', 'followers')
 
 class RegisterSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
-    email = serializers.CharField(required=True)
-    password = serializers.CharField(write_only=True, required=True)
+    username = serializers.CharField(max_length=150, required=True)  # Explicitly define CharField
+    email = serializers.CharField(max_length=255, required=True)  # Explicitly define CharField
+    password = serializers.CharField(write_only=True, required=True)  # Explicitly define CharField
 
     class Meta:
         model = User
@@ -20,10 +20,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = get_user_model().objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
+        password = validated_data.pop('password')  # Extract password separately
+        user = User.objects.create_user(**validated_data)
+        user.set_password(password)  # Ensure password is hashed
+        user.save()
         Token.objects.create(user=user)
         return user
