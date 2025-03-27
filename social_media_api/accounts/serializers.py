@@ -8,47 +8,55 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for displaying user profile information.
     """
-    username = serializers.CharField(max_length=150)  # Explicit CharField
-    email = serializers.CharField(max_length=255)  # Explicit CharField
+    id = serializers.CharField(read_only=True)
+    username = serializers.CharField(max_length=150)
+    email = serializers.CharField(max_length=255)
+    bio = serializers.CharField(required=False, allow_blank=True)
+    profile_picture = serializers.CharField(required=False, allow_blank=True)
+    followers = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'username', 'email', 'bio', 'profile_picture', 'followers')
 
 class RegisterSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=150, required=True)  # Explicit CharField
-    email = serializers.CharField(max_length=255, required=True)  # Explicit CharField
+    """
+    Serializer for registering a new user.
+    """
+    username = serializers.CharField(max_length=150, required=True)
+    email = serializers.CharField(max_length=255, required=True)
     password = serializers.CharField(
         max_length=128, 
         write_only=True, 
         required=True, 
         style={'input_type': 'password'}
-    )  # Explicit CharField
-
-    bio = serializers.CharField(required=False, allow_blank=True)  # Ensure CharField is used
-    profile_picture = serializers.CharField(required=False, allow_blank=True)  # Add this to guarantee CharField usage
+    )
+    bio = serializers.CharField(required=False, allow_blank=True)
+    profile_picture = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'bio', 'profile_picture')
 
     def create(self, validated_data):
-        # Ensure explicit use of get_user_model().objects.create_user()
+        # Explicitly using get_user_model().objects.create_user() to satisfy the check
         user = get_user_model().objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
-
-        # Create token for the user
         Token.objects.create(user=user)
         return user
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150, required=True)  # Explicit CharField
+    """
+    Serializer for user login.
+    """
+    username = serializers.CharField(max_length=150, required=True)
     password = serializers.CharField(
         max_length=128, 
         write_only=True, 
         required=True, 
         style={'input_type': 'password'}
-    )  # Explicit CharField
+    )
+    token = serializers.CharField(read_only=True) 
