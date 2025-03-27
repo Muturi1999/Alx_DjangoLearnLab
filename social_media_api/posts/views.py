@@ -88,12 +88,11 @@ class UserFeedView(generics.ListAPIView):
         following_users = user.following_users.all()  
         return Post.objects.filter(author__in=following_users).order_by('-created_at') 
 
-
 class LikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, post_id):
-        post = get_object_or_404(Post, id=post_id)
+        post = generics.get_object_or_404(Post, pk=post_id)
         like, created = Like.objects.get_or_create(user=request.user, post=post)
 
         if not created:
@@ -114,11 +113,11 @@ class UnlikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, post_id):
-        post = get_object_or_404(Post, id=post_id)
+        post = generics.get_object_or_404(Post, pk=post_id) 
         like = Like.objects.filter(user=request.user, post=post)
 
         if not like.exists():
             return Response({'message': 'Not liked yet'}, status=status.HTTP_400_BAD_REQUEST)
 
         like.delete()
-        return Response({'message': 'Post unliked'}, status=status.HTTP_200_OK) 
+        return Response({'message': 'Post unliked'}, status=status.HTTP_200_OK)
