@@ -154,9 +154,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: Keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+DEBUG = False
 # SECURITY WARNING: Don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
-
+if os.getenv('ENV') == 'development':
+    DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 # Application definition
